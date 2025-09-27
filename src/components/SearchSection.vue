@@ -19,12 +19,16 @@
         v-for="t in TAGS"
         :key="t"
         :label="t"
-        rounded
+        no-caps
         dense
-        class="q-ma-xs"
-        :color="isSelected(t) ? 'primary' : 'grey-7'"
+        size="md"
+        padding="xs md"
+        rounded
+        :unelevated="!isSelected(t)"
         :outline="!isSelected(t)"
-        :unelevated="isSelected(t)"
+        :color="isSelected(t) ? 'primary' : 'grey-2'"
+        :text-color="isSelected(t) ? 'white' : 'grey-8'"
+        class="q-ma-xs text-caption"
         @click="toggleTag(t)"
       />
     </div>
