@@ -1,6 +1,7 @@
 <template>
   <q-page class="q-pa-md">
-    <div class="row q-col-gutter-md">
+    <div class="page-wrap">
+      <div class="row q-col-gutter-md">
 
       <!-- Левая колонка: фильтры (липкая) -->
       <div class="col-12 col-md-3">
@@ -43,6 +44,7 @@
         </div>
       </div>
 
+          </div>
     </div>
   </q-page>
 </template>
@@ -66,8 +68,8 @@ const searchQuery = ref('')
 const activeTags = ref([])
 
 function onApply (payload) {
-
-console.log('apply', payload)
+  
+  console.log('apply', payload)
 }
 
 function onReset () {
@@ -107,4 +109,14 @@ function onRemove (id) {
   flex: 1 1 auto;
   min-height: 0; /* позволяет q-scroll-area занять оставшееся место */
 }
+.page-wrap {
+  /* Центрируем контент и ограничиваем ширину на больших экранах */
+  margin: 0 auto;
+  max-width: 1440px; /* можно менять под дизайн-систему */
+  width: 100%;
+}
+@media (min-width: 1920px) {
+  .page-wrap { max-width: 1600px; }
+}
+
 </style>
