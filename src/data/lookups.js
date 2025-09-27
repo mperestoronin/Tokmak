@@ -1,31 +1,24 @@
 export const backendURL = '/api/'
 
-<<<<<<< HEAD
 // data/lookups.js
-export const faculties = ['Экономический', 'Филологический', 'Математический']
-=======
 
 export const faculties = [
   { label: 'Экономический', value: 'eco' },
   { label: 'Филологический', value: 'phil' },
-  { label: 'Математический', value: 'math' }
+  { label: 'Математический', value: 'math' },
 ]
->>>>>>> 6d66a37a244d9511261e78627e8ede64e231244d
 
 export const programs = [
   { label: 'Бакалавриат', value: 'bachelor' },
-  { label: 'Магистратура', value: 'master' }
+  { label: 'Магистратура', value: 'master' },
 ]
 
 export const courses = [
   { label: '1 курс', value: '1' },
   { label: '2 курс', value: '2' },
   { label: '3 курс', value: '3' },
-  { label: '4 курс', value: '4' }
+  { label: '4 курс', value: '4' },
 ]
-
-<<<<<<< HEAD
-export const modules = ['Основы', 'Продвинутый уровень', 'Практика']
 
 export const TAGS = [
   { value: 'alg', label: 'Алгоритм' },
@@ -45,20 +38,46 @@ export const TAGS = [
   { value: 'philo', label: 'Философия' },
   { value: 'math', label: 'Математика' },
   { value: 'lang', label: 'Иностранный язык' },
-=======
+  { value: 'lit', label: 'Литература' },
+  { value: 'ling', label: 'Лингвистика' },
+]
 export const modules = [
   { label: 'Основы', value: 'base' },
   { label: 'Продвинутый уровень', value: 'advanced' },
-  { label: 'Практика', value: 'practice' }
+  { label: 'Практика', value: 'practice' },
 ]
 
 export const tags = [
-  'Экономика', 'Финансы', 'Бухгалтерия', 'История', 'Литература',
-  'Лингвистика', 'Математика', 'Алгебра', 'Геометрия', 'Статистика',
-  'Программирование', 'JavaScript', 'Python', 'Базы данных', 'Физика',
-  'Химия', 'Биология', 'Экология', 'Право', 'Менеджмент',
-  'Маркетинг', 'Логистика', 'Философия', 'Социология', 'Психология',
-  'Иностранные языки', 'Китайский', 'Английский', 'Немецкий', 'Французский'
+  'Экономика',
+  'Финансы',
+  'Бухгалтерия',
+  'История',
+  'Литература',
+  'Лингвистика',
+  'Математика',
+  'Алгебра',
+  'Геометрия',
+  'Статистика',
+  'Программирование',
+  'JavaScript',
+  'Python',
+  'Базы данных',
+  'Физика',
+  'Химия',
+  'Биология',
+  'Экология',
+  'Право',
+  'Менеджмент',
+  'Маркетинг',
+  'Логистика',
+  'Философия',
+  'Социология',
+  'Психология',
+  'Иностранные языки',
+  'Китайский',
+  'Английский',
+  'Немецкий',
+  'Французский',
 ]
 // если тегов будет больше, можно смело подрезать .slice(0, 30) в компоненте
 
@@ -71,7 +90,7 @@ export const coursesList = [
     faculty: 'eco',
     program: 'bachelor',
     course: '1',
-    module: 'base'
+    module: 'base',
   },
   {
     id: 'math201',
@@ -80,7 +99,7 @@ export const coursesList = [
     faculty: 'math',
     program: 'bachelor',
     course: '2',
-    module: 'base'
+    module: 'base',
   },
   {
     id: 'phil301',
@@ -89,7 +108,7 @@ export const coursesList = [
     faculty: 'phil',
     program: 'master',
     course: '3',
-    module: 'advanced'
+    module: 'advanced',
   },
   {
     id: 'prog401',
@@ -98,16 +117,16 @@ export const coursesList = [
     faculty: 'math',
     program: 'master',
     course: '4',
-    module: 'practice'
+    module: 'practice',
   },
-    {
+  {
     id: 'eco4101',
     title: 'Введение в экономику',
     tags: ['Экономика', 'Финансы', 'История'],
     faculty: 'eco',
     program: 'bachelor',
     course: '1',
-    module: 'base'
+    module: 'base',
   },
   {
     id: 'math2401',
@@ -116,7 +135,7 @@ export const coursesList = [
     faculty: 'math',
     program: 'bachelor',
     course: '2',
-    module: 'base'
+    module: 'base',
   },
   {
     id: 'phil4301',
@@ -125,7 +144,7 @@ export const coursesList = [
     faculty: 'phil',
     program: 'master',
     course: '3',
-    module: 'advanced'
+    module: 'advanced',
   },
   {
     id: 'prog4401',
@@ -134,7 +153,6 @@ export const coursesList = [
     faculty: 'math',
     program: 'master',
     course: '4',
-    module: 'practice'
-  }
->>>>>>> 6d66a37a244d9511261e78627e8ede64e231244d
+    module: 'practice',
+  },
 ]

@@ -1,25 +1,18 @@
 <template>
-<<<<<<< HEAD
-  <q-page class="flex flex-center">
-    <FiltersPanel v-model="filters" @apply="onApply" />
-    <search-with-tags
-      v-model="search"
-      v-model:tags="picked"
-      @submit="onSubmit"
-      @change="onChange"
-    />
-=======
   <q-page class="q-pa-md">
     <div class="row q-col-gutter-md">
-
       <div class="col-12 col-md-3">
-        <FiltersPanel
-          v-model="filters"
-          @apply="onApply" 
-        />
+        <FiltersPanel v-model="filters" @apply="onApply" />
       </div>
 
       <div class="col-12 col-md-6">
+        <SearchWithTags
+          v-model="searchQuery"
+          v-model:tags="activeTags"
+          @submit="onApply"
+          class="q-mb-md"
+        />
+
         <CoursesList
           v-model="selectedCourseIds"
           :filters="filters"
@@ -49,25 +42,21 @@
           </q-card-actions>
         </q-card>
       </div>
-
     </div>
->>>>>>> 6d66a37a244d9511261e78627e8ede64e231244d
   </q-page>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import FiltersPanel from '../components/FiltersPanel.vue'
-<<<<<<< HEAD
-import SearchWithTags from '../components/SearchSection.vue'
-=======
 import CoursesList from '../components/CoursesList.vue'
+import SearchWithTags from '../components/SearchSection.vue'
 
 const filters = ref({
   faculty: null,
   program: null,
   course: null,
-  module: null
+  module: null,
 })
 
 const selectedCourseIds = ref([])
@@ -75,16 +64,13 @@ const selectedCourseIds = ref([])
 const searchQuery = ref('')
 const activeTags = ref([])
 
-
-function onApply (payload) {
+function onApply(payload) {
   console.log(payload)
 }
 
-function onReset () {
+function onReset() {
   selectedCourseIds.value = []
 }
->>>>>>> 6d66a37a244d9511261e78627e8ede64e231244d
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
