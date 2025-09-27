@@ -1,8 +1,8 @@
 <template>
   <q-header reveal class="no-pointer custom-navbar">
-    <q-toolbar class="q-py-sm">
-      <div class="row items-center" style="margin-left: 18vw">
-        <div class="hidden-sm-and-down row items-center">
+    <q-toolbar class="q-py-sm q-pl-none-md">
+      <div class="row items-center home-offset">
+        <div class="row items-center">
           <TopNavBarButton
             label="Главная"
             :to="{ name: 'home' }"
@@ -19,6 +19,16 @@ import TopNavBarButton from '../components/TopNavbarButton.vue'
 </script>
 
 <style lang="scss">
+.home-offset {
+  margin-left: 18vw;
+}
+
+@media (max-width: 2000px) {
+  .home-offset {
+    margin-left: 0;
+  }
+}
+
 .no-pointer {
   cursor: default;
 }
