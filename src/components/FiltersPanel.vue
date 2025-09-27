@@ -4,61 +4,112 @@
 
     <q-select
       v-model="local.faculty"
-      :options="facultyOptions"
+      :options="filteredFaculty"
       label="Факультет"
       dense
       outlined
       clearable
       emit-value
       map-options
+      use-input
+      input-debounce="0"
+      input-class="ellipsis text-no-wrap"
+      @filter="onFilterFaculty"
       @update:model-value="emitChange"
-    />
+    >
+      <template #no-option>
+        <q-item><q-item-section class="text-grey">Нет результатов</q-item-section></q-item>
+      </template>
+      <template #option="scope">
+        <q-item v-bind="scope.itemProps">
+          <q-item-section><div class="ellipsis">{{ getLabel(scope.opt) }}</div></q-item-section>
+        </q-item>
+      </template>
+    </q-select>
 
     <q-select
       v-model="local.program"
-      :options="programOptions"
+      :options="filteredProgram"
       label="Программа"
       dense
       outlined
       clearable
       emit-value
       map-options
+      use-input
+      input-debounce="0"
+      input-class="ellipsis text-no-wrap"
+      @filter="onFilterProgram"
       @update:model-value="emitChange"
-    />
+    >
+      <template #no-option>
+        <q-item><q-item-section class="text-grey">Нет результатов</q-item-section></q-item>
+      </template>
+      <template #option="scope">
+        <q-item v-bind="scope.itemProps">
+          <q-item-section><div class="ellipsis">{{ getLabel(scope.opt) }}</div></q-item-section>
+        </q-item>
+      </template>
+    </q-select>
 
     <q-select
       v-model="local.course"
-      :options="courseOptions"
+      :options="filteredCourse"
       label="Курс"
       dense
       outlined
       clearable
       emit-value
       map-options
+      use-input
+      input-debounce="0"
+      input-class="ellipsis text-no-wrap"
+      @filter="onFilterCourse"
       @update:model-value="emitChange"
-    />
+    >
+      <template #no-option>
+        <q-item><q-item-section class="text-grey">Нет результатов</q-item-section></q-item>
+      </template>
+      <template #option="scope">
+        <q-item v-bind="scope.itemProps">
+          <q-item-section><div class="ellipsis">{{ getLabel(scope.opt) }}</div></q-item-section>
+        </q-item>
+      </template>
+    </q-select>
 
     <q-select
       v-model="local.module"
-      :options="moduleOptions"
+      :options="filteredModule"
       label="Модуль"
       dense
       outlined
       clearable
       emit-value
       map-options
+      use-input
+      input-debounce="0"
+      input-class="ellipsis text-no-wrap"
+      @filter="onFilterModule"
       @update:model-value="emitChange"
-    />
+    >
+      <template #no-option>
+        <q-item><q-item-section class="text-grey">Нет результатов</q-item-section></q-item>
+      </template>
+      <template #option="scope">
+        <q-item v-bind="scope.itemProps">
+          <q-item-section><div class="ellipsis">{{ getLabel(scope.opt) }}</div></q-item-section>
+        </q-item>
+      </template>
+    </q-select>
   </aside>
 </template>
 
 <script setup>
-import { reactive, watch, computed } from 'vue'
-
+import { reactive, watch, computed, ref } from 'vue'
 import { faculties, programs, courses, modules } from '../data/lookups.js'
 
 /**
- * 
+ * Тип локального объекта фильтров
  * @typedef {Object} Filters
  * @property {string|null} faculty
  * @property {string|null} program
@@ -97,7 +148,7 @@ watch(
 )
 
 const normalize = (list) =>
-  list.map((item) =>
+  (list || []).map((item) =>
     typeof item === 'string'
       ? { label: item, value: item }
       : {
@@ -106,10 +157,40 @@ const normalize = (list) =>
         }
   )
 
-const facultyOptions = computed(() => normalize(faculties || []))
-const programOptions = computed(() => normalize(programs || []))
-const courseOptions = computed(() => normalize(courses || []))
-const moduleOptions = computed(() => normalize(modules || []))
+const baseFaculty = computed(() => normalize(faculties))
+const baseProgram = computed(() => normalize(programs))
+const baseCourse = computed(() => normalize(courses))
+const baseModule = computed(() => normalize(modules))
+
+const filteredFaculty = ref([...baseFaculty.value])
+const filteredProgram = ref([...baseProgram.value])
+const filteredCourse = ref([...baseCourse.value])
+const filteredModule = ref([...baseModule.value])
+
+watch(baseFaculty, (v) => (filteredFaculty.value = [...v]))
+watch(baseProgram, (v) => (filteredProgram.value = [...v]))
+watch(baseCourse, (v) => (filteredCourse.value = [...v]))
+watch(baseModule, (v) => (filteredModule.value = [...v]))
+
+const getLabel = (opt) => (typeof opt === 'object' ? opt.label : String(opt))
+const startsWithCi = (a, b) => a.toLowerCase().startsWith(b.toLowerCase())
+
+function onFilterFactory (base, target) {
+  return (val, update) => {
+    update(() => {
+      if (!val) {
+        target.value = [...base.value]
+      } else {
+        target.value = base.value.filter((opt) => startsWithCi(getLabel(opt), val))
+      }
+    })
+  }
+}
+
+const onFilterFaculty = onFilterFactory(baseFaculty, filteredFaculty)
+const onFilterProgram = onFilterFactory(baseProgram, filteredProgram)
+const onFilterCourse = onFilterFactory(baseCourse, filteredCourse)
+const onFilterModule = onFilterFactory(baseModule, filteredModule)
 
 function emitChange () {
   const payload = { ...local }
@@ -120,6 +201,22 @@ function emitChange () {
 
 <style scoped>
 aside {
-  min-width: 260px;
+  width: 300px;          
+  flex: 0 0 300px;      
+}
+
+
+:deep(.q-field__native) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+:deep(.q-item__label),
+:deep(.q-item .q-item__section > div) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>
