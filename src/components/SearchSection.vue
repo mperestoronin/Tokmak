@@ -17,15 +17,15 @@
     <div class="q-mt-md row items-start q-col-gutter-xs">
       <q-btn
         v-for="t in TAGS"
-        :key="t.value"
-        :label="t.label"
+        :key="t"
+        :label="t"
         rounded
         dense
         class="q-ma-xs"
-        :color="isSelected(t.value) ? 'primary' : 'grey-7'"
-        :outline="!isSelected(t.value)"
-        :unelevated="isSelected(t.value)"
-        @click="toggleTag(t.value)"
+        :color="isSelected(t) ? 'primary' : 'grey-7'"
+        :outline="!isSelected(t)"
+        :unelevated="isSelected(t)"
+        @click="toggleTag(t)"
       />
     </div>
   </div>
@@ -34,7 +34,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 
-import { TAGS } from '../data/lookups.js'
+import { tags as TAGS } from '../data/lookups.js'
 
 const props = defineProps({
   modelValue: { type: String, default: '' },
