@@ -94,7 +94,7 @@ function onRemove (id) {
 .center-col {
   position: sticky;
   top: 16px;
-  height: calc(100vh - 32px);
+  height: min(85vh, calc(100vh - 32px));
   display: flex;
   flex-direction: column;
   min-height: 0; /* важно для корректной прокрутки потомков */

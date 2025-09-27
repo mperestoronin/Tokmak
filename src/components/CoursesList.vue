@@ -3,31 +3,39 @@
     <div class="row items-center justify-between q-mb-sm sticky-actions">
       <div class="text-subtitle2">Курсы</div>
       <div class="row q-gutter-sm">
-        <q-btn size="sm" flat icon="done_all" label="выделить все" @click="selectAll" :disable="filtered.length === 0" />
-        <q-btn size="sm" flat color="negative" icon="restart_alt" label="сбросить" @click="resetAll" :disable="isEmptySelection" />
+        <q-btn
+          size="sm"
+          flat
+          icon="done_all"
+          label="выделить все"
+          @click="selectAll"
+          :disable="filtered.length === 0"
+        />
+        <q-btn
+          size="sm"
+          flat
+          color="negative"
+          icon="restart_alt"
+          label="сбросить"
+          @click="resetAll"
+          :disable="isEmptySelection"
+        />
       </div>
     </div>
 
     <q-separator class="q-mb-sm" />
 
-
-    <q-scroll-area :horizontal="false" class="course-scroll" :style="{ height: scrollHeight }">
+    <q-scroll-area :horizontal="false" class="course-scroll" :style="{ height: scrollHeight }" content-class="course-scroll__content">
       <div v-if="filtered.length === 0" class="text-grey q-pa-md">Ничего не найдено</div>
 
-      <div v-else class="column q-gutter-md">
-        <q-card v-for="course in filtered" :key="course.id" flat bordered>
-          <q-card-section class="row items-center justify-between no-wrap">
-            <div class="col-grow q-mr-md">
-              <div class="row items-center no-wrap">
-                <q-checkbox :model-value="!!selectionMap[course.id]" @update:model-value="onToggle(course.id, $event)" class="q-mr-sm"/>
-                <div class="text-body1 ellipsis" :title="course.title">{{ course.title }}</div>
-              </div>
-              <div class="q-mt-xs row q-gutter-xs">
-                <q-chip v-for="tg in course.tags.slice(0, 3)" :key="tg" dense>{{ tg }}</q-chip>
-              </div>
-            </div>
-          </q-card-section>
-        </q-card>
+      <div v-else class="card-list">
+        <CourseCard
+          v-for="course in filtered"
+          :key="course.id"
+          :course="course"
+          :checked="!!selectionMap[course.id]"
+          @update:checked="onToggle(course.id, $event)"
+        />
       </div>
     </q-scroll-area>
   </section>
@@ -36,29 +44,28 @@
 <script setup>
 import { computed, reactive, watch } from 'vue'
 import { coursesList } from '../data/lookups.js'
+import CourseCard from './CourseCard.vue'
 
 const props = defineProps({
-
   modelValue: { type: Array, default: () => [] },
 
   filters: {
     type: Object,
-    default: () => ({ faculty: null, program: null, course: null, module: null })
+    default: () => ({ faculty: null, program: null, course: null, module: null }),
   },
 
   search: { type: String, default: '' },
- 
+
   activeTags: { type: Array, default: () => [] },
 
-  height: { type: String, default: '100%' }
+  height: { type: String, default: '100%' },
 })
 
 const emit = defineEmits(['update:modelValue', 'reset'])
 
-
-function normalizeCourse (raw, idx) {
+function normalizeCourse(raw, idx) {
   const title = raw.title ?? raw.name ?? raw.label ?? `Курс #${idx + 1}`
-  const tags = Array.isArray(raw.tags) ? raw.tags : (raw.keywords || [])
+  const tags = Array.isArray(raw.tags) ? raw.tags : raw.keywords || []
   return {
     id: raw.id ?? `${idx}`,
     title,
@@ -66,12 +73,11 @@ function normalizeCourse (raw, idx) {
     faculty: raw.faculty ?? raw.facultyId ?? raw.facultyCode ?? null,
     program: raw.program ?? raw.programId ?? raw.programCode ?? null,
     course: raw.course ?? raw.courseId ?? raw.courseNum ?? null,
-    module: raw.module ?? raw.moduleId ?? raw.moduleCode ?? null
+    module: raw.module ?? raw.moduleId ?? raw.moduleCode ?? null,
   }
 }
 
 const catalog = computed(() => (coursesList || []).map((c, i) => normalizeCourse(c, i)))
-
 
 const filtered = computed(() => {
   const q = props.search?.trim().toLowerCase()
@@ -98,7 +104,6 @@ const filtered = computed(() => {
   })
 })
 
-
 const selectionMap = reactive({})
 
 watch(
@@ -109,23 +114,23 @@ watch(
     for (const k of Object.keys(selectionMap)) delete selectionMap[k]
     Object.assign(selectionMap, m)
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 const selectedIds = computed(() => Object.keys(selectionMap).filter((id) => selectionMap[id]))
 const isEmptySelection = computed(() => selectedIds.value.length === 0)
 
-function onToggle (id, checked) {
+function onToggle(id, checked) {
   selectionMap[id] = !!checked
   emit('update:modelValue', selectedIds.value)
 }
 
-function selectAll () {
+function selectAll() {
   for (const c of filtered.value) selectionMap[c.id] = true
   emit('update:modelValue', selectedIds.value)
 }
 
-function resetAll () {
+function resetAll() {
   for (const k of Object.keys(selectionMap)) selectionMap[k] = false
   emit('update:modelValue', [])
   emit('reset')
@@ -151,15 +156,43 @@ const sectionStyle = computed(() => ({ '--clist-h': props.height }))
 }
 
 .course-scroll {
- height: 100%;
- min-height: 0; 
+  height: 100%;
+  min-height: 0;
 }
-
 
 .ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 100%;
+}
+
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;              /* вместо q-gutter-md */
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;     /* критично для мобилок */
+}
+
+/* «подушка» внутри области скролла, чтобы не липло к скроллбару */
+.course-scroll__content {
+  padding: 4px 12px 12px 8px;  /* top right bottom left */
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* сама карточка точно не шире контейнера */
+:deep(.course-card) {
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* мобильные: чуть меньше отступы */
+@media (max-width: 600px) {
+  .card-list { gap: 10px; }
+  .course-scroll__content { padding-right: 10px; padding-left: 6px; }
 }
 </style>
