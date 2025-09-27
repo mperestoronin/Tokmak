@@ -6,6 +6,13 @@
       </div>
 
       <div class="col-12 col-md-6">
+        <SearchWithTags
+          v-model="searchQuery"
+          v-model:tags="activeTags"
+          @submit="onApply"
+          class="q-mb-md"
+        />
+
         <CoursesList
           v-model="selectedCourseIds"
           :filters="filters"
@@ -35,6 +42,7 @@ import { ref } from 'vue'
 import FiltersPanel from '../components/FiltersPanel.vue'
 import CoursesList from '../components/CoursesList.vue'
 import RightSelectedCourses from '../components/RightSelectedCourses.vue'
+import SearchWithTags from '../components/SearchSection.vue'
 
 const filters = ref({
   faculty: null,
