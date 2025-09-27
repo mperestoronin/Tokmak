@@ -2,7 +2,7 @@
   <q-footer class="bg-secondary text-white">
     <q-toolbar>
       <q-toolbar-title>
-        <span>© 2025 Умный корпус текстов СМИ</span>
+        <span>© Дипломная работа 2025 Омирбековой Дарии ·</span>
       </q-toolbar-title>
       <div>
        
