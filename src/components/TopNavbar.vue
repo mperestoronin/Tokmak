@@ -1,136 +1,26 @@
 <template>
   <q-header reveal class="no-pointer custom-navbar">
-    <q-toolbar class="q-py-md">
-      <!-- гамбургер меню показывается только на мобильных экранах -->
-      <q-btn
-        v-if="isMobile"
-        flat
-        dense
-        round
-        @click="toggleDrawer"
-        icon="menu"
-        aria-label="Toggle navigation"
-        class="q-ml-sm"
-      />
-
-      <div class="row items-center">
-        <q-toolbar-title>
-          <router-link to="/" class="flex items-center no-underline text-black">
-            
-          </router-link>
-        </q-toolbar-title>
+    <q-toolbar class="q-py-sm">
+      <div class="row items-center" style="margin-left: 18vw">
         <div class="hidden-sm-and-down row items-center">
-          <TopNavBarButton label="Домой" :to="{ name: 'home' }" />
-          <TopNavBarButton label="Документы" :to="{ name: 'documents' }" />
-          <TopNavBarButton label="Дайджесты" :to="{ name: 'digests' }" />
-          <q-btn
-            flat
-            dense
-            no-caps
-            class="q-mr-sm flat-button-text"
-            label="Статистика"
-            href="https://grafana.nt.fyi/login"
-            target="_blank"
-            rel="noopener"
-            aria-label="Open statistics site"
+          <TopNavBarButton
+            label="Главная"
+            :to="{ name: 'home' }"
+            style="font-size: 18px; font-weight: bold; color: white; text-transform: none"
           />
         </div>
       </div>
-
-      <q-space />
-      <q-btn flat icon="brightness_4" @click="toggleDarkMode" aria-label="Toggle dark mode" />
-
-      <template v-if="isAuthenticated">
-        <q-btn flat round icon="account_circle" :to="{ name: 'privacy' }" aria-label="Profile" />
-      </template>
-      <template v-else>
-        <q-btn flat label="Войти" :to="{ name: 'login' }" aria-label="Login" />
-      </template>
     </q-toolbar>
-
-    <q-drawer v-model="drawerOpen" side="left" overlay behavior="mobile" class="mobile-drawer">
-      <q-list padding>
-        <q-item clickable :to="{ name: 'home' }" @click="toggleDrawer">
-          <q-item-section>
-            <q-item-label>Домой</q-item-label>
-          </q-item-section>
-        </q-item>
-
-        <q-item clickable :to="{ name: 'documents' }" @click="toggleDrawer">
-          <q-item-section>
-            <q-item-label>Документы</q-item-label>
-          </q-item-section>
-        </q-item>
-
-        <q-item clickable :to="{ name: 'digests' }" @click="toggleDrawer">
-          <q-item-section>
-            <q-item-label>Дайджесты</q-item-label>
-          </q-item-section>
-        </q-item>
-
-        <q-item
-          clickable
-          tag="a"
-          href="https://grafana.nt.fyi/login"
-          target="_blank"
-          rel="noopener"
-          @click="toggleDrawer"
-        >
-          <q-item-section>
-            <q-item-label>Статистика</q-item-label>
-          </q-item-section>
-        </q-item>
-      </q-list>
-    </q-drawer>
   </q-header>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useQuasar } from 'quasar'
 import TopNavBarButton from '../components/TopNavbarButton.vue'
-
-
-const drawerOpen = ref(false)
-function toggleDrawer() {
-  drawerOpen.value = !drawerOpen.value
-}
-
-const $q = useQuasar()
-const isMobile = computed(() => $q.screen.lt.md)
-const isDark = ref($q.dark.isActive)
-const isAuthenticated = ref(false)
-
-function toggleDarkMode() {
-  $q.dark.set(!isDark.value)
-  isDark.value = !isDark.value
-}
-
 </script>
 
 <style lang="scss">
-.logo {
-  height: 40px;
-  max-height: 100%;
-}
-
-/* Скрываем блок кнопок на маленьких экранах */
-.hidden-sm-and-down {
-  display: none;
-}
-
-@media (min-width: 992px) {
-  .hidden-sm-and-down {
-    display: flex;
-  }
-}
-
 .no-pointer {
   cursor: default;
-}
-
-.mobile-drawer {
-  color: $secondary;
 }
 
 .custom-navbar {

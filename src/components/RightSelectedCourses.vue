@@ -3,7 +3,7 @@
     <q-card flat bordered>
       <q-card-section class="row items-center justify-between">
         <div class="text-subtitle2">Выбранные курсы</div>
-        <q-badge outline :label="selectedCount" v-if="selectedCount > 0"/>
+        <q-badge outline :label="selectedCount" v-if="selectedCount > 0" />
       </q-card-section>
 
       <q-separator />
@@ -17,7 +17,14 @@
               <div class="ellipsis" :title="c.title">{{ c.title }}</div>
             </q-item-section>
             <q-item-section side>
-              <q-btn flat dense round icon="close" @click="remove(c.id)" :aria-label="`Убрать ${c.title}`"/>
+              <q-btn
+                flat
+                dense
+                round
+                icon="close"
+                @click="remove(c.id)"
+                :aria-label="`Убрать ${c.title}`"
+              />
             </q-item-section>
           </q-item>
         </q-list>
@@ -26,9 +33,27 @@
       <q-separator />
 
       <q-card-actions vertical class="q-pa-sm q-gutter-xs">
-        <q-btn :disable="selectedCount === 0" color="primary" unelevated label="Построить граф схожести дисциплин" :to="{ name: 'graph', query: queryParams }"/>
-        <q-btn :disable="selectedCount === 0" color="primary" unelevated label="Построить дашборды" :to="{ name: 'dashboard', query: queryParams }"/>
-        <q-btn :disable="selectedCount === 0" color="primary" unelevated label="Построить облако тегов" :to="{ name: 'cloud', query: queryParams }"/>
+        <q-btn
+          :disable="selectedCount === 0"
+          color="primary"
+          unelevated
+          label="Построить граф схожести дисциплин"
+          :to="{ name: 'graph', query: queryParams }"
+        />
+        <q-btn
+          :disable="selectedCount === 0"
+          color="primary"
+          unelevated
+          label="Построить дашборды"
+          :to="{ name: 'dashboard', query: queryParams }"
+        />
+        <q-btn
+          :disable="selectedCount === 0"
+          color="primary"
+          unelevated
+          label="Построить облако тегов"
+          :to="{ name: 'cloud', query: queryParams }"
+        />
       </q-card-actions>
     </q-card>
   </aside>
@@ -40,18 +65,18 @@ import { coursesList } from '../data/lookups.js'
 
 const props = defineProps({
   selectedIds: { type: Array, default: () => [] },
-  height: { type: String, default: 'calc(100vh - 400px)' }
+  height: { type: String, default: 'calc(100vh - 400px)' },
 })
 
 const emit = defineEmits(['remove'])
 
-function normalizeCourse (raw, idx) {
+function normalizeCourse(raw, idx) {
   const title = raw.title ?? raw.name ?? raw.label ?? `Курс #${idx + 1}`
-  const tags = Array.isArray(raw.tags) ? raw.tags : (raw.keywords || [])
+  const tags = Array.isArray(raw.tags) ? raw.tags : raw.keywords || []
   return {
     id: raw.id ?? `${idx}`,
     title,
-    tags
+    tags,
   }
 }
 
@@ -64,14 +89,14 @@ const byId = computed(() => {
   return res
 })
 
-const selectedCourses = computed(() => props.selectedIds
-  .map(id => byId.value.get(id))
-  .filter(Boolean))
+const selectedCourses = computed(() =>
+  props.selectedIds.map((id) => byId.value.get(id)).filter(Boolean),
+)
 
 const selectedCount = computed(() => selectedCourses.value.length)
 const listHeight = computed(() => props.height)
 
-function remove (id) {
+function remove(id) {
   emit('remove', id)
 }
 
