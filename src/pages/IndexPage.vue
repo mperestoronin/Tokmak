@@ -1,47 +1,48 @@
 <template>
   <q-page class="q-pa-md">
     <div class="row q-col-gutter-md">
+
+      <!-- Левая колонка: фильтры (липкая) -->
       <div class="col-12 col-md-3">
-        <FiltersPanel v-model="filters" @apply="onApply" />
+        <div class="sticky-col">
+          <FiltersPanel v-model="filters" @apply="onApply" />
+        </div>
       </div>
 
+      <!-- Центральная колонка: поиск + теги + список курсов со своей прокруткой -->
       <div class="col-12 col-md-6">
-        <SearchWithTags
-          v-model="searchQuery"
-          v-model:tags="activeTags"
-          @submit="onApply"
-          class="q-mb-md"
-        />
+        <div class="center-col">
+          <section class="q-pa-md q-gutter-md center-header">
+            <SearchWithTags
+              v-model="searchQuery"
+              v-model:tags="activeTags"
+              @submit="onApply"
+            />
+          </section>
 
-        <CoursesList
-          v-model="selectedCourseIds"
-          :filters="filters"
-          height="calc(100vh - 320px)"
-          :search="searchQuery"
-          :activeTags="activeTags"
-          @reset="onReset"
-        />
+          <div class="center-body">
+            <CoursesList
+              v-model="selectedCourseIds"
+              :filters="filters"
+              :search="searchQuery"
+              :activeTags="activeTags"
+              height="100%"
+              @reset="onReset"
+            />
+          </div>
+        </div>
       </div>
 
+      <!-- Правая колонка: выбранные курсы (липкая) -->
       <div class="col-12 col-md-3">
-        <q-card flat bordered>
-          <q-card-section class="text-subtitle2">Выбранные курсы</q-card-section>
-          <q-separator />
-          <q-list v-if="selectedCourseIds.length">
-            <q-item v-for="id in selectedCourseIds" :key="id">
-              <q-item-section>{{ id }}</q-item-section>
-            </q-item>
-          </q-list>
-          <div v-else class="q-pa-md text-grey">Ничего не выбрано</div>
-
-          <q-separator />
-          <q-card-actions align="right">
-            <q-btn label="Стр. 1" flat />
-            <q-btn label="Стр. 2" flat />
-            <q-btn label="Стр. 3" flat />
-          </q-card-actions>
-        </q-card>
+        <div class="sticky-col">
+          <RightSelectedCourses
+            :selected-ids="selectedCourseIds"
+            @remove="onRemove"
+          />
+        </div>
       </div>
+
     </div>
   </q-page>
 </template>
@@ -50,27 +51,60 @@
 import { ref } from 'vue'
 import FiltersPanel from '../components/FiltersPanel.vue'
 import CoursesList from '../components/CoursesList.vue'
+import RightSelectedCourses from '../components/RightSelectedCourses.vue'
 import SearchWithTags from '../components/SearchSection.vue'
 
 const filters = ref({
   faculty: null,
   program: null,
   course: null,
-  module: null,
+  module: null
 })
 
 const selectedCourseIds = ref([])
-
 const searchQuery = ref('')
 const activeTags = ref([])
 
-function onApply(payload) {
-  console.log(payload)
+function onApply (payload) {
+
+console.log('apply', payload)
 }
 
-function onReset() {
+function onReset () {
   selectedCourseIds.value = []
+}
+
+function onRemove (id) {
+  selectedCourseIds.value = selectedCourseIds.value.filter(x => x !== id)
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+/* Левый и правый столбцы фиксируются в пределах вьюпорта */
+.sticky-col {
+  position: sticky;
+  top: 16px;
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+}
+
+/* Центр — флекс-колонка фиксированной высоты, список растягивается и скроллится внутри */
+.center-col {
+  position: sticky;
+  top: 16px;
+  height: calc(100vh - 32px);
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* важно для корректной прокрутки потомков */
+}
+
+.center-header {
+  flex: 0 0 auto;
+  background: var(--q-background, white);
+}
+
+.center-body {
+  flex: 1 1 auto;
+  min-height: 0; /* позволяет q-scroll-area занять оставшееся место */
+}
+</style>

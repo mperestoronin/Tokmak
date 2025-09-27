@@ -16,7 +16,7 @@
       <div class="row items-center">
         <q-toolbar-title>
           <router-link to="/" class="flex items-center no-underline text-black">
-            <q-img :src="logo" alt="логотип" style="width: 120px; max-width: 100%" />
+            
           </router-link>
         </q-toolbar-title>
         <div class="hidden-sm-and-down row items-center">
@@ -89,7 +89,7 @@
 import { ref, computed } from 'vue'
 import { useQuasar } from 'quasar'
 import TopNavBarButton from '../components/TopNavbarButton.vue'
-import logo from 'src/assets/quasar-logo-vertical.svg'
+
 
 const drawerOpen = ref(false)
 function toggleDrawer() {
