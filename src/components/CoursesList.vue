@@ -50,7 +50,7 @@ const props = defineProps({
  
   activeTags: { type: Array, default: () => [] },
 
-  height: { type: String, default: 'calc(100vh - 160px)' }
+  height: { type: String, default: '100%' }
 })
 
 const emit = defineEmits(['update:modelValue', 'reset'])
@@ -151,7 +151,8 @@ const sectionStyle = computed(() => ({ '--clist-h': props.height }))
 }
 
 .course-scroll {
- 
+ height: 100%;
+ min-height: 0; 
 }
 
 
