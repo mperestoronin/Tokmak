@@ -66,80 +66,102 @@ const props = defineProps({
 
 const show = ref(false)
 
-// Мягкая нормализация полей, чтобы компонент был устойчив к разным ключам из lookups.js
+/** безопасный парсер: принимает массив или строку вида "['a','b']" / "[1,2]" */
+function parseArrayish (val) {
+  if (Array.isArray(val)) return val
+  if (typeof val === 'string') {
+    const s = val.trim()
+    if (s.startsWith('[') && s.endsWith(']')) {
+      try { return JSON.parse(s.replace(/'/g, '"')) } catch {console.log("error")}
+      // fallback: тупо распарсить по запятым
+      return s.slice(1, -1)
+        .split(',')
+        .map(x => x.trim().replace(/^['"]|['"]$/g, ''))
+        .filter(Boolean)
+    }
+    return s ? [s] : []
+  }
+  return val != null ? [String(val)] : []
+}
+
+// Мягкая нормализация под новые РУ-ключи
 const c = computed(() => {
   const raw = props.course || {}
+  const id = raw['Уникальный ключ'] ?? raw.id ?? raw.key
+  const title = raw['Название дисциплины'] ?? raw.title ?? raw.name ?? raw.label ?? 'Без названия'
+  const faculty = raw['Факультет'] ?? raw.faculty ?? null
+  const program = raw['ОП'] ?? raw.program ?? null
+  const course = raw['Курс'] ?? raw.course ?? null
+  const modules = parseArrayish(raw['Модули'] ?? raw.modules ?? [])
+
+  const tags = parseArrayish(raw['Ключевые слова'] ?? raw.tags ?? raw.keywords ?? [])
+    .map(String)
+
+  const languages = parseArrayish(raw['Языки'] ?? raw.language ?? raw.lang ?? [])
+  const department = raw['Департамент'] ?? raw.department ?? raw.whoReads ?? raw.lecturer ?? raw.readBy ?? raw.departmentName
+  const audience = raw['Охват'] ?? raw.audience ?? raw.coverage ?? raw.scope
+  const annotation = raw['Аннотация'] ?? raw.annotation ?? raw.summary ?? raw.description ?? raw.desc
+  const outcomes = parseArrayish(raw['Результаты'] ?? raw.outcomes ?? raw.learningOutcomes ?? raw.results ?? [])
+  const controls = parseArrayish(raw['Контроли'] ?? raw.controls ?? raw.assessment ?? raw.controlElements ?? [])
+
+  // Сформируем строку «Когда читается», если явного поля нет
+  const when = raw['Когда читается'] ?? (() => {
+    const parts = []
+    if (course != null && course !== '') parts.push(`${course}-й курс`)
+    if (modules.length) parts.push(`${modules.join(', ')} модул${modules.length > 1 ? 'я' : 'ь'}`)
+    return parts.join(', ')
+  })()
+
   return {
-    id: raw.id,
-    title: raw.title ?? raw.name ?? raw.label ?? 'Без названия',
-    tags: Array.isArray(raw.tags) ? raw.tags : (raw.keywords || []),
-    department: raw.department ?? raw.whoReads ?? raw.lecturer ?? raw.readBy ?? raw.departmentName,
-    when: raw.when ?? raw.schedule ?? raw.time,
-    audience: raw.audience ?? raw.coverage ?? raw.scope,
-    language: raw.language ?? raw.lang,
-    annotation: raw.annotation ?? raw.summary ?? raw.description ?? raw.desc,
-    outcomes: raw.outcomes ?? raw.learningOutcomes ?? raw.results ?? [],
-    controls: raw.controls ?? raw.assessment ?? raw.controlElements ?? []
+    id, title, tags, faculty, program, course,
+    modules, languages, department, audience,
+    annotation, outcomes, controls, when,
+    language: languages.join(', ')
   }
 })
 </script>
+
 
 <style scoped>
 .course-card {
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
-  overflow: hidden; /* страхуемся от горизонтального скролла */
+  overflow: hidden;
+  min-height: 104px;         /* синхронизировано с CARD_SIZE */
 }
 
-/* Без .row: делаем собственный флекс без отрицательных маржинов */
+/* секция — без .row/.q-gutter (они дают отрицательные маржины) */
 .card-section {
   display: flex;
   padding: 12px 16px;
   overflow: hidden;
 }
 
-.card-main {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  min-width: 0; /* критично для ellipsis */
-}
-
 .card-header {
   display: flex;
   align-items: center;
-  gap: 8px;          /* вместо q-gutter */
+  gap: 8px;
   min-width: 0;
 }
 
+/* Заголовок — одна строка, без переносов */
 .title {
   flex: 1 1 auto;
   min-width: 0;
-}
-
-.ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 100%;
 }
 
-/* теги — гибкий ряд без .row/.q-gutter */
+/* Теги — одна «линия» высотой около 24–28px */
 .tags {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;    /* важно: не переносим */
   gap: 6px;
   padding-top: 4px;
-  min-width: 0;
+  overflow: hidden;     /* обрезаем лишнее */
+  max-height: 28px;     /* фиксируем строку по высоте */
 }
 
-.prewrap {
-  white-space: pre-wrap;
-}
-
-/* На узких экранах добавим дополнительную «подушку» справа */
-@media (max-width: 600px) {
-  .card-section { padding-right: 20px; }
-}
 </style>

@@ -70,14 +70,27 @@ const props = defineProps({
 
 const emit = defineEmits(['remove'])
 
-function normalizeCourse(raw, idx) {
-  const title = raw.title ?? raw.name ?? raw.label ?? `Курс #${idx + 1}`
-  const tags = Array.isArray(raw.tags) ? raw.tags : raw.keywords || []
-  return {
-    id: raw.id ?? `${idx}`,
-    title,
-    tags,
+function parseArrayish (val) {
+  if (Array.isArray(val)) return val
+  if (typeof val === 'string') {
+    const s = val.trim()
+    if (s.startsWith('[') && s.endsWith(']')) {
+      try { return JSON.parse(s.replace(/'/g, '"')) } catch {console.log("error")}
+      return s.slice(1, -1)
+        .split(',')
+        .map(x => x.trim().replace(/^['"]|['"]$/g, ''))
+        .filter(Boolean)
+    }
+    return s ? [s] : []
   }
+  return val != null ? [String(val)] : []
+}
+
+function normalizeCourse (raw, idx) {
+  const id = raw['Уникальный ключ'] ?? raw.id ?? `${idx}`
+  const title = raw['Название дисциплины'] ?? raw.title ?? raw.name ?? raw.label ?? `Курс #${idx + 1}`
+  const tags = parseArrayish(raw['Ключевые слова'] ?? raw.tags ?? raw.keywords ?? []).map(String)
+  return { id: String(id), title, tags }
 }
 
 const byId = computed(() => {
@@ -88,6 +101,7 @@ const byId = computed(() => {
   })
   return res
 })
+
 
 const selectedCourses = computed(() =>
   props.selectedIds.map((id) => byId.value.get(id)).filter(Boolean),
