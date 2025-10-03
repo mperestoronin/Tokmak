@@ -1,7 +1,7 @@
 <template>
   <q-page class="q-pa-md">
     <AwaitServer :loading="loading" :error="error" @retry="retry">
-      <div class="text-positive text-subtitle1">Запрос отправлен успешно.</div>
+      <q-img v-if="img" :src="img" ratio="16/9" spinner-color="primary" />
     </AwaitServer>
   </q-page>
 </template>
@@ -9,14 +9,16 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { backendURL } from '../data/lookups.js'
-import { useQuasar } from 'quasar'
-import AwaitServer from '../components/AwaitServer.vue'
+import { backendURL } from '@/data/lookups.js'
+import { blobToDataURL } from '@/utils/response'
+import { useSavedTabs } from '@/stores/savedTabs'
+import AwaitServer from '@/components/AwaitServer.vue'
 
-const $q = useQuasar()
 const route = useRoute()
+const store = useSavedTabs()
 const loading = ref(true)
 const error = ref('')
+const img = ref('')
 
 function parseIds () {
   const raw = route.query.ids
@@ -27,6 +29,7 @@ function parseIds () {
 async function postData () {
   loading.value = true
   error.value = ''
+  img.value = ''
   try {
     const ids = parseIds()
     if (!ids.length) throw new Error('Пустой список идентификаторов')
@@ -36,15 +39,26 @@ async function postData () {
       body: JSON.stringify({ 'Уникальный ключ': ids })
     })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    $q.notify({ type: 'positive', message: 'Данные отправлены' })
+    const ct = res.headers.get('content-type') || ''
+    if (ct.includes('image/png')) {
+      const blob = await res.blob()
+      const url = await blobToDataURL(blob)
+      img.value = url
+      store.addImages({ title: `Облако (${new Date().toLocaleString()})`, images: [url] })
+    } else if (ct.includes('application/json')) {
+      const data = await res.json()
+      const url = (data?.image || data?.images?.[0]) || ''
+      img.value = url
+      store.addImages({ title: `Облако (${new Date().toLocaleString()})`, images: [url] })
+    } else {
+      throw new Error('Ожидали PNG от сервера')
+    }
   } catch (e) {
     error.value = e?.message || String(e)
-    $q.notify({ type: 'negative', message: 'Не удалось отправить данные' })
   } finally {
     loading.value = false
   }
 }
-function retry () { postData() }
-
+function retry() { postData() }
 onMounted(postData)
 </script>

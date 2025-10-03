@@ -1,10 +1,9 @@
 <template>
-  <q-page class="q-pa-md">
-    <AwaitServer :loading="loading" :error="error" @retry="retry">
-      <!-- сюда попадём, когда загрузка завершилась и ошибок нет -->
-      <div class="text-positive text-subtitle1">Запрос отправлен успешно.</div>
-      <!-- здесь же можно отрисовывать результат -->
-    </AwaitServer>
+  <q-page class="q-pa-none graph-page">
+    <AwaitServer v-if="loading || error" :loading="loading" :error="error" @retry="retry" />
+    <div v-else class="frame-wrap">
+      <iframe class="html-frame" :srcdoc="html"></iframe>
+    </div>
   </q-page>
 </template>
 
@@ -12,13 +11,16 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { backendURL } from '../data/lookups.js'
-import { useQuasar } from 'quasar'
+import { useSavedTabs } from '../stores/savedTabs'
 import AwaitServer from '../components/AwaitServer.vue'
+import { prepareVisIframeHtml } from '../utils/html'
 
-const $q = useQuasar()
 const route = useRoute()
+const store = useSavedTabs()
+
 const loading = ref(true)
 const error = ref('')
+const html = ref('')
 
 function parseIds () {
   const raw = route.query.ids
@@ -29,19 +31,24 @@ function parseIds () {
 async function postData () {
   loading.value = true
   error.value = ''
+  html.value = ''
   try {
     const ids = parseIds()
     if (!ids.length) throw new Error('Пустой список идентификаторов')
-    const res = await fetch(`${backendURL}/graph`, {
+    //const res = await fetch(`${backendURL}/graph`, {
+console.log(backendURL)
+const res = await fetch(`https://880f81a8148640af99883cdabcaec960.api.mockbin.io/`, { 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 'Уникальный ключ': ids })
     })
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    $q.notify({ type: 'positive', message: 'Данные отправлены' })
+   if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const raw = await res.text()
+    const wrapped = prepareVisIframeHtml(raw, backendURL)
+    html.value = wrapped
+    store.addHtml({ title: `Граф (${new Date().toLocaleString()})`, html: wrapped })
   } catch (e) {
     error.value = e?.message || String(e)
-    $q.notify({ type: 'negative', message: 'Не удалось отправить данные' })
   } finally {
     loading.value = false
   }
@@ -50,3 +57,9 @@ function retry () { postData() }
 
 onMounted(postData)
 </script>
+
+<style scoped>
+.graph-page { display:flex; flex-direction:column; height:100%; min-height:0; }
+.frame-wrap { flex:1 1 auto; min-height:0; display:flex; }
+.html-frame { flex:1 1 auto; width:100%; height:100%; display:block; border:0; background:white; }
+</style>

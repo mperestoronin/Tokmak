@@ -22,7 +22,6 @@
       </div>
     </q-card-section>
 
-    <!-- Диалог с подробной информацией о курсе -->
     <q-dialog v-model="show">
       <q-card style="max-width: 760px; width: 100%">
         <q-card-section class="row items-center justify-between">
@@ -60,20 +59,17 @@ import { computed, ref } from 'vue'
 
 const props = defineProps({
   course: { type: Object, required: true },
-  /** v-model для чекбокса */
   checked: { type: Boolean, default: false }
 })
 
 const show = ref(false)
 
-/** безопасный парсер: принимает массив или строку вида "['a','b']" / "[1,2]" */
 function parseArrayish (val) {
   if (Array.isArray(val)) return val
   if (typeof val === 'string') {
     const s = val.trim()
     if (s.startsWith('[') && s.endsWith(']')) {
       try { return JSON.parse(s.replace(/'/g, '"')) } catch {console.log("error")}
-      // fallback: тупо распарсить по запятым
       return s.slice(1, -1)
         .split(',')
         .map(x => x.trim().replace(/^['"]|['"]$/g, ''))
@@ -84,7 +80,7 @@ function parseArrayish (val) {
   return val != null ? [String(val)] : []
 }
 
-// Мягкая нормализация под новые РУ-ключи
+
 const c = computed(() => {
   const raw = props.course || {}
   const id = raw['Уникальный ключ'] ?? raw.id ?? raw.key
@@ -104,7 +100,6 @@ const c = computed(() => {
   const outcomes = parseArrayish(raw['Результаты'] ?? raw.outcomes ?? raw.learningOutcomes ?? raw.results ?? [])
   const controls = parseArrayish(raw['Контроли'] ?? raw.controls ?? raw.assessment ?? raw.controlElements ?? [])
 
-  // Сформируем строку «Когда читается», если явного поля нет
   const when = raw['Когда читается'] ?? (() => {
     const parts = []
     if (course != null && course !== '') parts.push(`${course}-й курс`)
@@ -128,10 +123,10 @@ const c = computed(() => {
   max-width: 100%;
   box-sizing: border-box;
   overflow: hidden;
-  min-height: 104px;         /* синхронизировано с CARD_SIZE */
+  min-height: 104px;        
 }
 
-/* секция — без .row/.q-gutter (они дают отрицательные маржины) */
+
 .card-section {
   display: flex;
   padding: 12px 16px;
@@ -145,7 +140,7 @@ const c = computed(() => {
   min-width: 0;
 }
 
-/* Заголовок — одна строка, без переносов */
+
 .title {
   flex: 1 1 auto;
   min-width: 0;
@@ -154,14 +149,14 @@ const c = computed(() => {
   white-space: nowrap;
 }
 
-/* Теги — одна «линия» высотой около 24–28px */
+
 .tags {
   display: flex;
-  flex-wrap: nowrap;    /* важно: не переносим */
+  flex-wrap: nowrap;    
   gap: 6px;
   padding-top: 4px;
-  overflow: hidden;     /* обрезаем лишнее */
-  max-height: 28px;     /* фиксируем строку по высоте */
+  overflow: hidden;     
+  max-height: 28px;     
 }
 
 </style>

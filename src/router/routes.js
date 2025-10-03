@@ -3,7 +3,6 @@ const routes = [
     path: '/',
     component: () => import('../layouts/MainLayout.vue'),
     children: [
-      
       {
         path: '',
         name: 'home',
@@ -23,12 +22,14 @@ const routes = [
         path: 'cloud',
         name: 'cloud',
         component: () => import('../pages/CloudPage.vue'),
-        meta: { requiresAuth: true, moderatorOnly: true }
       },
-      
+      {
+        path: '/saved/:id',
+        name: 'saved',
+        component: () => import('../pages/SavedViewerPage.vue'),
+      },
     ],
-  }
+  },
 ]
 
 export default routes
-

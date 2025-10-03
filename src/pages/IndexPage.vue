@@ -3,14 +3,12 @@
     <div class="page-wrap">
       <div class="row q-col-gutter-md">
 
-      <!-- Левая колонка: фильтры (липкая) -->
       <div class="col-12 col-md-3">
         <div class="sticky-col">
           <FiltersPanel v-model="filters" @apply="onApply" />
         </div>
       </div>
 
-      <!-- Центральная колонка: поиск + теги + список курсов со своей прокруткой -->
       <div class="col-12 col-md-6">
         <div class="center-col">
           <section class="q-pa-md q-gutter-md center-header">
@@ -34,7 +32,6 @@
         </div>
       </div>
 
-      <!-- Правая колонка: выбранные курсы (липкая) -->
       <div class="col-12 col-md-3">
         <div class="sticky-col">
           <RightSelectedCourses
@@ -82,7 +79,6 @@ function onRemove (id) {
 </script>
 
 <style scoped>
-/* Левый и правый столбцы фиксируются в пределах вьюпорта */
 .sticky-col {
   position: sticky;
   top: 16px;
@@ -90,14 +86,13 @@ function onRemove (id) {
   overflow: auto;
 }
 
-/* Центр — флекс-колонка фиксированной высоты, список растягивается и скроллится внутри */
 .center-col {
   position: sticky;
   top: 16px;
   height: min(85vh, calc(100vh - 32px));
   display: flex;
   flex-direction: column;
-  min-height: 0; /* важно для корректной прокрутки потомков */
+  min-height: 0;
 }
 
 .center-header {
@@ -107,12 +102,11 @@ function onRemove (id) {
 
 .center-body {
   flex: 1 1 auto;
-  min-height: 0; /* позволяет q-scroll-area занять оставшееся место */
+  min-height: 0;
 }
 .page-wrap {
-  /* Центрируем контент и ограничиваем ширину на больших экранах */
   margin: 0 auto;
-  max-width: 1440px; /* можно менять под дизайн-систему */
+  max-width: 1440px;
   width: 100%;
 }
 @media (min-width: 1920px) {

@@ -1,6 +1,5 @@
 <template>
-  <div class="center-wrap" :style="{ minHeight }">
-    <!-- Loading -->
+  <div v-if="loading || error" class="center-wrap" :style="{ minHeight }">
     <template v-if="loading">
       <div class="text-h4 text-weight-medium">Ждём ответа сервера</div>
       <q-icon :name="icon" :size="iconSize" color="grey-6" class="q-mt-sm" />
@@ -10,15 +9,9 @@
       </div>
     </template>
 
-    <!-- Error -->
-    <template v-else-if="error">
+    <template v-else>
       <div class="text-h5 text-negative q-mb-sm">Ошибка: {{ error }}</div>
       <q-btn color="primary" label="Повторить" @click="$emit('retry')" />
-    </template>
-
-    <!-- Success slot -->
-    <template v-else>
-      <slot />
     </template>
   </div>
 </template>
@@ -28,10 +21,9 @@ import { ref, computed, watch, onUnmounted } from 'vue'
 
 const props = defineProps({
   loading: { type: Boolean, default: false },
-  error: { type: String, default: '' },
-  icon: { type: String, default: 'hourglass_empty' },
-  iconSize: { type: String, default: '96px' },
-  /** CSS-значение высоты области ожидания */
+  error:   { type: String,  default: ''   },
+  icon:    { type: String,  default: 'hourglass_empty' },
+  iconSize:{ type: String,  default: '96px' },
   minHeight: { type: String, default: 'calc(100vh - 160px)' },
   hintText: {
     type: String,
@@ -48,29 +40,13 @@ const elapsedText = computed(() => {
   return `${m}:${s}`
 })
 
-watch(
-  () => props.loading,
-  (isLoading) => {
-    if (isLoading) {
-      elapsedSec.value = 0
-      startTimer()
-    } else {
-      stopTimer()
-    }
-  },
-  { immediate: true }
-)
+watch(() => props.loading, (isLoading) => {
+  if (isLoading) startTimer()
+  else stopTimer()
+}, { immediate: true })
 
-function startTimer () {
-  stopTimer()
-  timerId = setInterval(() => { elapsedSec.value += 1 }, 1000)
-}
-function stopTimer () {
-  if (timerId) {
-    clearInterval(timerId)
-    timerId = null
-  }
-}
+function startTimer () { stopTimer(); elapsedSec.value = 0; timerId = setInterval(() => { elapsedSec.value++ }, 1000) }
+function stopTimer  () { if (timerId) { clearInterval(timerId); timerId = null } }
 
 onUnmounted(stopTimer)
 </script>

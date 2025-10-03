@@ -56,24 +56,18 @@ import CourseCard from './CourseCard.vue'
 const CARD_SIZE = 104
 
 const props = defineProps({
-  /** v-model: выбранные id курсов */
   modelValue: { type: Array, default: () => [] },
-  /** Активные фильтры из левого компонента */
   filters: {
     type: Object,
     default: () => ({ faculty: null, program: null, course: null, module: null }),
   },
-  /** Строка поиска (из центрального компонента) */
   search: { type: String, default: '' },
-  /** Активные теги (из центрального компонента chip-ов) */
   activeTags: { type: Array, default: () => [] },
-  /** Высота прокручиваемой области (по умолчанию — под родителя) */
   height: { type: String, default: '100%' },
 })
 
 const emit = defineEmits(['update:modelValue', 'reset'])
 
-/* ---- Лёгкий парсер списков из строк вида "['a', 'b']" или "[4]" ---- */
 function parseList(val) {
   if (val == null) return []
   if (Array.isArray(val)) return val
@@ -89,13 +83,8 @@ function parseList(val) {
   return [String(val)]
 }
 
-/* ---- Преднормализация (ОДИН раз), без try/catch и без лишних преобразований ---- */
 const catalog = shallowRef([])
-/**
- * Храним подготовленные поля:
- * - lc_title / lc_tags: для быстрого поиска без toLowerCase на каждой проверке
- * - modulesSet: для O(1) проверки при фильтре по модулю
- */
+
 onMounted(() => {
   const src = Array.isArray(coursesList) ? coursesList : []
   catalog.value = src.map((raw, i) => {
@@ -111,7 +100,6 @@ onMounted(() => {
     const course = raw['Курс'] ?? null
 
     return {
-      // для карточки/переходов
       id,
       title,
       tags,
@@ -121,11 +109,9 @@ onMounted(() => {
       modules,
       modulesSet,
 
-      // для быстрого поиска
       lc_title: title.toLowerCase(),
       lc_tags: tags.map((t) => t.toLowerCase()),
 
-      // поля для модалки (CourseCard)
       department: raw['Департамент'] ?? null,
       audience: raw['Охват'] ?? null,
       languages: parseList(raw['Языки']),
@@ -136,7 +122,7 @@ onMounted(() => {
   })
 })
 
-/* ---- Фильтрация: без лишних аллокаций на каждом элементе ---- */
+
 const filtered = computed(() => {
   const f = props.filters || {}
   const hasFaculty = !!f.faculty
@@ -154,7 +140,6 @@ const filtered = computed(() => {
   const moduleKey = hasModule ? String(f.module) : null
   const courseKey = hasCourse ? String(f.course) : null
 
-  // Простой линейный проход; уже без toLowerCase/преобразований
   return catalog.value.filter((c) => {
     if (hasFaculty && c.faculty !== f.faculty) return false
     if (hasProgram && c.program !== f.program) return false
@@ -162,7 +147,6 @@ const filtered = computed(() => {
     if (hasModule && !c.modulesSet.has(moduleKey)) return false
 
     if (hasTags) {
-      // минимум аллокаций
       let ok = false
       const len = c.tags.length
       for (let i = 0; i < len; i++) {
@@ -176,7 +160,6 @@ const filtered = computed(() => {
 
     if (hasQ) {
       if (c.lc_title.indexOf(q) === -1) {
-        // пробуем в тегах
         let hit = false
         const len2 = c.lc_tags.length
         for (let j = 0; j < len2; j++) {
@@ -193,7 +176,6 @@ const filtered = computed(() => {
   })
 })
 
-/* ---- Выделение/сброс ---- */
 const selectionMap = reactive({})
 
 watch(
@@ -232,15 +214,14 @@ function resetAll() {
   emit('reset')
 }
 
-/* ---- Высота/стили ---- */
 </script>
 
 <style scoped>
 .courses-list {
   display: flex;
   flex-direction: column;
-  height: 100%; /* компонент занимает всю доступную высоту родителя */
-  min-height: 0; /* важно, чтобы дети могли схлопываться по высоте */
+  height: 100%;
+  min-height: 0; 
 }
 
 .sticky-actions {
@@ -252,11 +233,11 @@ function resetAll() {
 }
 
 .list-body {
-  flex: 1 1 auto; /* тело растягивается */
-  min-height: 0; /* критично для корректного внутреннего скролла */
+  flex: 1 1 auto; 
+  min-height: 0; 
 }
 
-/* На всякий случай отключаем горизонтальную прокрутку */
+
 .course-vs {
   overflow-x: hidden;
 }

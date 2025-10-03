@@ -10,13 +10,19 @@
           />
         </div>
       </div>
+
+      <q-space />
+
+      <NavbarSavedTabs />
     </q-toolbar>
   </q-header>
 </template>
 
 <script setup>
 import TopNavBarButton from '../components/TopNavbarButton.vue'
+import NavbarSavedTabs from '../components/SavedNavbarTabs.vue'
 </script>
+
 
 <style lang="scss">
 .home-offset {
