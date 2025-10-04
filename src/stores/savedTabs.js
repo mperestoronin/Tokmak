@@ -1,15 +1,15 @@
 import { defineStore } from 'pinia'
-import { nanoid } from 'nanoid/non-secure' 
+import { nanoid } from 'nanoid/non-secure'
 
 const STORAGE_KEY = 'saved-tabs-v1'
 
 export const useSavedTabs = defineStore('savedTabs', {
   state: () => ({
-    tabs: [] // [{ id, title, type: 'html'|'images', payload: { html? , images?[] }, createdAt }]
+    tabs: [], // [{ id, title, type: 'html'|'images', payload: { html? , images?[] }, createdAt }]
   }),
 
   getters: {
-    byId: (state) => (id) => state.tabs.find(t => t.id === id)
+    byId: (state) => (id) => state.tabs.find((t) => t.id === id),
   },
 
   actions: {
@@ -30,25 +30,41 @@ export const useSavedTabs = defineStore('savedTabs', {
       }
     },
     addHtml({ title, html }) {
+      if (this.tabs.length >= 3) {
+        // Remove the oldest tab
+        const oldestIdx = this.tabs.reduce(
+          (minIdx, t, idx, arr) => (t.createdAt < arr[minIdx].createdAt ? idx : minIdx),
+          0,
+        )
+        this.tabs.splice(oldestIdx, 1)
+      }
       const id = nanoid(8)
       this.tabs.push({
         id,
         title: title || 'Граф',
         type: 'html',
         payload: { html },
-        createdAt: Date.now()
+        createdAt: Date.now(),
       })
       this._persist()
       return id
     },
     addImages({ title, images }) {
+      if (this.tabs.length >= 3) {
+        // Remove the oldest tab
+        const oldestIdx = this.tabs.reduce(
+          (minIdx, t, idx, arr) => (t.createdAt < arr[minIdx].createdAt ? idx : minIdx),
+          0,
+        )
+        this.tabs.splice(oldestIdx, 1)
+      }
       const id = nanoid(8)
       this.tabs.push({
         id,
         title: title || 'Изображения',
         type: 'images',
-        payload: { images }, 
-        createdAt: Date.now()
+        payload: { images },
+        createdAt: Date.now(),
       })
       this._persist()
       return id
@@ -61,8 +77,8 @@ export const useSavedTabs = defineStore('savedTabs', {
       }
     },
     remove(id) {
-      this.tabs = this.tabs.filter(t => t.id !== id)
+      this.tabs = this.tabs.filter((t) => t.id !== id)
       this._persist()
-    }
-  }
+    },
+  },
 })
