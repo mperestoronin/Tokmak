@@ -6,20 +6,27 @@ export function prepareVisIframeHtml(rawHtml, baseHref) {
   const hasBase = /<base\s/i.test(rawHtml)
   const hasViewport = /<meta[^>]+name=["']viewport["']/i.test(rawHtml)
 
-  // Жёстко растягиваем всё на 100% и убираем фиксированные размеры/float
   const forceCss = `
-    <style id="__embed_vis_full">
-      html, body { margin:0; padding:0; width:100%; height:100%; }
-      .card, .card-body { width:100% !important; height:100% !important; margin:0 !important; padding:0 !important; border:0 !important; box-sizing:border-box !important; }
-      #mynetwork {
-        width:100% !important; height:100% !important;
-        position:relative !important; float:none !important;
-        background:#fff; box-sizing:border-box;
-      }
-      /* на всякий случай */
-      svg { width:100% !important; height:100% !important; }
-      body > *:first-child { width:100% !important; height:100% !important; }
-    </style>`.trim()
+  <style id="__embed_vis_full">
+    /* базис */
+    html, body { margin:0; padding:0; width:100%; height:100vh; }
+
+    .container, .container-fluid { max-width:none !important; width:100% !important; padding:0 !important; margin:0 !important; }
+    .row { margin:0 !important; }
+    [class^="col"], [class*=" col"] { flex:0 0 100% !important; max-width:100% !important; padding:0 !important; }
+
+    .card, .card-body { width:100% !important; height:100vh !important; margin:0 !important; padding:0 !important; border:0 !important; box-shadow:none !important; background:#fff !important; }
+
+    #__embed_full { position:fixed; inset:0; overflow:auto; background:#fff; height:100vh !important; }
+
+    #mynetwork, svg, canvas {
+      width:100% !important; height:100vh !important; display:block;
+      box-sizing:border-box;
+    }
+
+    hr, .card-header, .card-footer, .navbar { display:none !important; border:0 !important; }
+  </style>
+`.trim()
 
   const fitScript = `
   <script id="__embed_vis_fit">
@@ -56,6 +63,15 @@ export function prepareVisIframeHtml(rawHtml, baseHref) {
     .join('\n')
 
   let html = rawHtml
+
+  html = html
+    .replace(/var\s+network\s*=\s*new\s+vis\.Network/, 'window.network = new vis.Network')
+    .replace(/(^|\s)network\s*=\s*new\s+vis\.Network/, ' window.network = new vis.Network')
+
+  html = html.replace(
+    /(<div[^>]+id=["']mynetwork["'][^>]*style=["'][^"']*)(width\s*:\s*\d+px;?|height\s*:\s*\d+px;?)([^"']*["'])/gi,
+    (m, a, _b, c) => `${a}${c}`,
+  )
 
   if (hasHead) {
     html = html.replace(/<head([^>]*)>/i, `<head$1>\n${headInject}\n`)

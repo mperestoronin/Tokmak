@@ -38,17 +38,17 @@ async function postData() {
   try {
     const ids = parseIds()
     if (!ids.length) throw new Error('Пустой список идентификаторов')
-    //const res = await fetch(`${backendURL}/graph`, {
-    console.log(backendURL)
-    const res = await fetch(`https://880f81a8148640af99883cdabcaec960.api.mockbin.io/`, {
+
+    const res = await fetch(`${backendURL}/graph`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 'Уникальный ключ': ids }),
+      body: JSON.stringify({ unique_keys: ids }),
     })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const raw = await res.text()
-    const wrapped = prepareVisIframeHtml(raw, backendURL)
+    const htmlString = await res.text() // <-- HTMLResponse => text()
+    const wrapped = /<html[\s>]/i.test(htmlString) ? htmlString : prepareVisIframeHtml(htmlString)
     html.value = wrapped
+
     store.addHtml({ title: `Граф (${new Date().toLocaleString()})`, html: wrapped })
   } catch (e) {
     error.value = e?.message || String(e)
@@ -56,6 +56,7 @@ async function postData() {
     loading.value = false
   }
 }
+
 function retry() {
   postData()
 }
@@ -78,7 +79,7 @@ onMounted(postData)
 .html-frame {
   flex: 1 1 auto;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   display: block;
   border: 0;
   background: white;
