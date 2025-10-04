@@ -9,8 +9,21 @@
 
     <!-- Изображения -->
     <div v-else-if="tab.type === 'images'" class="q-pa-md">
-      <div class="dash-columns">
-        <!-- колонка 1: 1,2,3,4 -->
+      <!-- если одно изображение - для облака тегов -->
+      <div v-if="isSingleImage" class="cloud-wrap">
+        <q-img
+          :src="onlyImage"
+          fit="contain"
+          loading="eager"
+          no-transition
+          spinner-color="primary"
+          class="cloud-img"
+        />
+      </div>
+
+      <!-- если несколько изображений - для дашборда -->
+      <div v-else class="dash-columns">
+        <!-- колонка 1 -->
         <div class="dash-col">
           <div v-for="img in col1" :key="img.key" class="dash-card">
             <q-img
@@ -24,7 +37,7 @@
           </div>
         </div>
 
-        <!-- колонка 2: 5 (большая) -->
+        <!-- колонка 2 -->
         <div class="dash-col">
           <div v-if="col2" class="dash-card dash-card--large">
             <q-img
@@ -38,7 +51,7 @@
           </div>
         </div>
 
-        <!-- колонка 3: 6 (большая) -->
+        <!-- колонка 3 -->
         <div class="dash-col">
           <div v-if="col3" class="dash-card dash-card--large">
             <q-img
@@ -75,6 +88,10 @@ const srcdoc = computed(() => {
 })
 
 const imgs = computed(() => tab.value?.payload?.images || [])
+
+const isSingleImage = computed(() => imgs.value.length === 1)
+const onlyImage = computed(() => imgs.value[0] || '')
+
 const col2 = computed(() => (imgs.value[1] ? { key: 'c2_1', src: imgs.value[1] } : null))
 const col3 = computed(() => (imgs.value[5] ? { key: 'c3_5', src: imgs.value[5] } : null))
 const col1 = computed(() =>
@@ -145,6 +162,17 @@ const col1 = computed(() =>
 .dash-img--large {
   width: 100%;
   height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.cloud-wrap {
+  max-width: 1600px;
+  margin: 0 auto;
+}
+.cloud-img {
+  width: 100%;
+  height: 75vh;
   object-fit: contain;
   display: block;
 }
