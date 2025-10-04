@@ -1,5 +1,5 @@
 <template>
-  <q-page class="q-pa-none graph-page">
+  <q-page class="q-pa-none graph-page window-height">
     <AwaitServer v-if="loading || error" :loading="loading" :error="error" @retry="retry" />
     <div v-else class="frame-wrap">
       <iframe class="html-frame" :srcdoc="html"></iframe>
@@ -22,13 +22,16 @@ const loading = ref(true)
 const error = ref('')
 const html = ref('')
 
-function parseIds () {
+function parseIds() {
   const raw = route.query.ids
   if (!raw) return []
-  return String(raw).split(',').map(s => Number(s.trim())).filter(Number.isFinite)
+  return String(raw)
+    .split(',')
+    .map((s) => Number(s.trim()))
+    .filter(Number.isFinite)
 }
 
-async function postData () {
+async function postData() {
   loading.value = true
   error.value = ''
   html.value = ''
@@ -36,13 +39,13 @@ async function postData () {
     const ids = parseIds()
     if (!ids.length) throw new Error('Пустой список идентификаторов')
     //const res = await fetch(`${backendURL}/graph`, {
-console.log(backendURL)
-const res = await fetch(`https://880f81a8148640af99883cdabcaec960.api.mockbin.io/`, { 
+    console.log(backendURL)
+    const res = await fetch(`https://880f81a8148640af99883cdabcaec960.api.mockbin.io/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 'Уникальный ключ': ids })
+      body: JSON.stringify({ 'Уникальный ключ': ids }),
     })
-   if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const raw = await res.text()
     const wrapped = prepareVisIframeHtml(raw, backendURL)
     html.value = wrapped
@@ -53,13 +56,31 @@ const res = await fetch(`https://880f81a8148640af99883cdabcaec960.api.mockbin.io
     loading.value = false
   }
 }
-function retry () { postData() }
+function retry() {
+  postData()
+}
 
 onMounted(postData)
 </script>
 
 <style scoped>
-.graph-page { display:flex; flex-direction:column; height:100%; min-height:0; }
-.frame-wrap { flex:1 1 auto; min-height:0; display:flex; }
-.html-frame { flex:1 1 auto; width:100%; height:100%; display:block; border:0; background:white; }
+.graph-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+.frame-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+}
+.html-frame {
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  display: block;
+  border: 0;
+  background: white;
+}
 </style>

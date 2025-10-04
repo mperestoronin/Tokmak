@@ -1,4 +1,3 @@
-
 export function prepareVisIframeHtml(rawHtml, baseHref) {
   const base = (baseHref || '').replace(/\/+$/, '') + '/'
 
@@ -20,32 +19,43 @@ export function prepareVisIframeHtml(rawHtml, baseHref) {
       /* на всякий случай */
       svg { width:100% !important; height:100% !important; }
       body > *:first-child { width:100% !important; height:100% !important; }
-    </style>`.trim();
+    </style>`.trim()
 
   const fitScript = `
-    <script id="__embed_vis_fit">
-      (function(){
-        function tryFit(){
-          try {
-            if (window.network && typeof window.network.fit === 'function') {
-              if (typeof window.network.redraw === 'function') window.network.redraw();
-              window.network.fit({ animation: false });
+  <script id="__embed_vis_fit">
+    (function () {
+      function tryFit() {
+        try {
+          if (window.network) {
+            if (typeof window.network.setSize === 'function') {
+              window.network.setSize('100%', '100%');
             }
-          } catch(e) {}
-        }
-        window.addEventListener('load', function(){ setTimeout(tryFit, 0); });
-        window.addEventListener('resize', function(){ tryFit(); });
-      })();
-    </script>`.trim();
+            if (typeof window.network.redraw === 'function') {
+              window.network.redraw();
+            }
+            requestAnimationFrame(function () {
+              try { window.network.fit({ animation: false }); } catch(e) {}
+            });
+          }
+        } catch (e) {}
+      }
+      window.addEventListener('load', function () {
+        setTimeout(tryFit, 0);
+      });
+      window.addEventListener('resize', tryFit);
+    })();
+  </script>`.trim()
 
   const headInject = [
     !hasBase ? `<base href="${base}">` : '',
     !hasViewport ? `<meta name="viewport" content="width=device-width, initial-scale=1">` : '',
     forceCss,
-    fitScript
-  ].filter(Boolean).join('\n');
+    fitScript,
+  ]
+    .filter(Boolean)
+    .join('\n')
 
-  let html = rawHtml;
+  let html = rawHtml
 
   if (hasHead) {
     html = html.replace(/<head([^>]*)>/i, `<head$1>\n${headInject}\n`)
@@ -58,8 +68,11 @@ export function prepareVisIframeHtml(rawHtml, baseHref) {
   }
   if (hasBody && !/#__embed_full/.test(html)) {
     html = html
-      .replace(/<body([^>]*)>/i, `<body$1><div id="__embed_full" style="position:fixed;inset:0;overflow:auto;background:#fff;">`)
-      .replace(/<\/body>/i, `</div></body>`);
+      .replace(
+        /<body([^>]*)>/i,
+        `<body$1><div id="__embed_full" style="position:fixed;inset:0;overflow:auto;background:#fff;">`,
+      )
+      .replace(/<\/body>/i, `</div></body>`)
   }
 
   return html
