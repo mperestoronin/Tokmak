@@ -23,7 +23,7 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useSavedTabs } from '../stores/savedTabs'
 import { backendURL } from '../data/lookups.js'
-import { prepareIframeHtml } from '../utils/html'
+import { prepareVisIframeHtml } from '../utils/html'
 
 const route = useRoute()
 const store = useSavedTabs()
@@ -33,7 +33,7 @@ const tab = computed(() => store.byId(route.params.id))
 const srcdoc = computed(() => {
   const t = tab.value
   if (!t || t.type !== 'html') return ''
-  return prepareIframeHtml(t.payload?.html || '', backendURL)
+  return prepareVisIframeHtml(t.payload?.html || '', backendURL)
 })
 </script>
 
