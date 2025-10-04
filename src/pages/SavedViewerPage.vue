@@ -8,10 +8,48 @@
     </div>
 
     <!-- Изображения -->
-    <div v-else-if="tab.type === 'images'" class="q-pa-md images-wrap">
-      <div class="row q-col-gutter-md">
-        <div v-for="(src, i) in tab.payload.images" :key="i" class="col-12 col-md-6">
-          <q-img :src="src" ratio="16/9" spinner-color="primary" />
+    <div v-else-if="tab.type === 'images'" class="q-pa-md">
+      <div class="dash-columns">
+        <!-- колонка 1: 1,2,3,4 -->
+        <div class="dash-col">
+          <div v-for="img in col1" :key="img.key" class="dash-card">
+            <q-img
+              :src="img.src"
+              fit="contain"
+              loading="eager"
+              no-transition
+              spinner-color="primary"
+              class="dash-img"
+            />
+          </div>
+        </div>
+
+        <!-- колонка 2: 5 (большая) -->
+        <div class="dash-col">
+          <div v-if="col2" class="dash-card dash-card--large">
+            <q-img
+              :src="col2.src"
+              fit="contain"
+              loading="eager"
+              no-transition
+              spinner-color="primary"
+              class="dash-img dash-img--large"
+            />
+          </div>
+        </div>
+
+        <!-- колонка 3: 6 (большая) -->
+        <div class="dash-col">
+          <div v-if="col3" class="dash-card dash-card--large">
+            <q-img
+              :src="col3.src"
+              fit="contain"
+              loading="eager"
+              no-transition
+              spinner-color="primary"
+              class="dash-img dash-img--large"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -35,14 +73,25 @@ const srcdoc = computed(() => {
   if (!t || t.type !== 'html') return ''
   return prepareVisIframeHtml(t.payload?.html || '', backendURL)
 })
+
+const imgs = computed(() => tab.value?.payload?.images || [])
+const col2 = computed(() => (imgs.value[1] ? { key: 'c2_1', src: imgs.value[1] } : null))
+const col3 = computed(() => (imgs.value[5] ? { key: 'c3_5', src: imgs.value[5] } : null))
+const col1 = computed(() =>
+  imgs.value
+    .map((src, idx) => ({ idx, src }))
+    .filter(({ idx }) => idx !== 1 && idx !== 5)
+    .map(({ idx, src }) => ({ key: `c1_${idx}`, src })),
+)
 </script>
 
 <style scoped>
 .page-bleed {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 0px);
-  min-height: 0;
+  height: 100vh;
+  overflow: auto;
+  padding-bottom: 64px;
 }
 .frame-wrap {
   flex: 1 1 auto;
@@ -61,5 +110,59 @@ const srcdoc = computed(() => {
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
+}
+
+.dash-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+.dash-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.dash-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.dash-img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.dash-card--large {
+  padding: 12px;
+}
+.dash-img--large {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+@media (max-width: 1400px) {
+  .dash-columns {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dash-img--large {
+    height: 60vh;
+  }
+}
+@media (max-width: 900px) {
+  .dash-columns {
+    grid-template-columns: 1fr;
+  }
+  .dash-img--large {
+    height: 50vh;
+  }
 }
 </style>
